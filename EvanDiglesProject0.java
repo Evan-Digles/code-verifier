@@ -5,6 +5,7 @@
 import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
+import java.io.FileInputStream;
 
 public class EvanDiglesProject0 {
 
@@ -16,37 +17,50 @@ public class EvanDiglesProject0 {
 
         boolean doQuit = false; // Is the user done?
         Scanner userInput = new Scanner(System.in); // Get User Input.
-        String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string.
-        int currentLine[] = new int[1];
-        int currentColumn[] = new int[1];
-        File userFile; // Initialize this and the fileScanner here for use later.
-        Scanner fileScanner;
+        String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
+                                                   // methods can change it without returning anything.
+        int currentLine[] = new int[] {1}; // Line, array for changing. We start at 1 rather than 0.
+        int currentColumn[] = new int[1]; // Column, arracy for changing.
+        
 
+        while (doQuit != true) { // Main loop.
 
-        do { // Main loop.
+            // Variables and resets.
+            Scanner fileScanner;
+            File userFile;
+            FileInputStream userFileStream;
+            currentCharacter[0] = null;
 
+            System.out.println("Enter File Name, or type 'quit' or 'exit' to exit the program.");
+            String userNextLine = userInput.nextLine();
 
-            System.out.println("Enter File Name:");
+            if (userNextLine.toLowerCase().equals("quit") || userNextLine.toLowerCase().equals("exit")) { // If we quit, we quit.
+                doQuit = true;
+                continue;
+            }
 
-            try {
-                userFile = getFile(userInput.nextLine());
+            try { // Check if the file exists.
+                userFile = getFile(userNextLine);
                 fileScanner = new Scanner(userFile);
             } catch (IOException noFile) {
                 System.out.println("That file does not exist.");
                 continue; // Start the loop over if we don't have that file.
             }
+            userFileStream = new FileInputStream(userFile);
 
-            nextChar(fileScanner, currentCharacter);
-            System.out.println(currentCharacter[0]);
-            nextChar(fileScanner, currentCharacter);
-            System.out.println(currentCharacter[0]);
-
-            
+            while(currentCharacter[0] != "End-Of-File") { // Until the file is done, keep going.
+                nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
+                if (currentCharacter[0] != "Carriage" && currentCharacter[0] != "End-Of-File") {
+                    System.out.println(position(currentLine, currentColumn) + " " + currentCharacter[0]);
+                } 
+            }
 
             fileScanner.close();
-        } while (doQuit == false);
+            userFileStream.close();
 
-        System.out.println("Thanks for using the program! Exiting.");
+        }
+
+        System.out.println("Thanks for using the program! Exiting."); // Exit message.
         userInput.close();
 
 
@@ -64,18 +78,56 @@ public class EvanDiglesProject0 {
 
     }
 
-    public static void nextChar(Scanner fileScanner, String currentCharacter[]) {
-        fileScanner.useDelimiter(""); // Use an empty delimiter.
-        currentCharacter[0] = fileScanner.next();
+    public static void nextChar(FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[]) throws IOException { // I was trying to be creative. Anyways, this gets a character and sends it to the single digit string array we set earlier.
+        
+        int byteChar;
+        char takeToString = '1';
+        String sendThisOut = null;
+
+        if ((byteChar = userFileStream.read()) != -1) { // This clever bit of code inside the () I found from https://www.geeksforgeeks.org/java-io-fileinputstream-class-java/ It lets the filestream signal end of file.
+            takeToString = (char)byteChar;
+            // System.out.println(byteChar); This is used for testing.
+            sendThisOut = String.valueOf(takeToString);
+        } else {
+            sendThisOut = "End-Of-File";
+        }
+        
+        if (takeToString != '\n') {
+            currentColumn[0] = currentColumn[0] + 1;
+        } else {
+            currentColumn[0] = 0;
+            currentLine[0] = currentLine[0] + 1;
+        }
+        if (byteChar == 13 || byteChar == 10) { // We want to ignore the ASCII for Newline and Carriage.
+            if (byteChar == 13) {
+                sendThisOut = "Carriage";
+                currentCharacter[0] = sendThisOut;
+            } else {
+                sendThisOut = ""; // Leave empty if there's a new line.
+                currentCharacter[0] = sendThisOut;
+            }
+            
+        } else {
+            
+            currentCharacter[0] = sendThisOut;
+        }
+
         //System.out.println(currentChar);
 
         return;
     }
 
-    public static String currentChar(String currentCharacter[]) {
+    public static String currentChar(String currentCharacter[]) { // Yes, I would like to see the current character.
+
         String outString = currentCharacter[0];
+        
 
         return outString;
+    }
+
+    public static String position(int currentLine[], int currentColumn[]) { // Returns a string of the current position. I'll probably need to replace this in the future.
+        String position = currentLine[0] + ":" + currentColumn[0];
+        return position;
     }
 
 
