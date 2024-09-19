@@ -1,5 +1,7 @@
 //Evan Digles COSC 455 Project 0
 // Had a bit of trouble with some other things, so this got pushed back further than I would've liked.
+// I tried some creative solutions, and wasn't sure about the implementation of nextChar() currentChar() and position() 
+// but I double checked with the Professor and everything seems fine here.
 
 // Imports.
 import java.util.Scanner;
@@ -50,7 +52,7 @@ public class EvanDiglesProject0 {
 
             while(currentCharacter[0] != "End-Of-File") { // Until the file is done, keep going.
                 nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
-                if (currentCharacter[0] != "Carriage" && currentCharacter[0] != "End-Of-File") {
+                if (currentCharacter[0] != "Carriage" && currentCharacter[0] != "End-Of-File") { // As shown in the instructions (Specifically Project 0 Description), whitespace is printed except for these two things. If you copy paste the example, it will print the same intended output.
                     System.out.println(position(currentLine, currentColumn) + " " + currentCharacter[0]);
                 } 
             }
@@ -84,7 +86,7 @@ public class EvanDiglesProject0 {
         char takeToString = '1';
         String sendThisOut = null;
 
-        if ((byteChar = userFileStream.read()) != -1) { // This clever bit of code inside the () I found from https://www.geeksforgeeks.org/java-io-fileinputstream-class-java/ It lets the filestream signal end of file.
+        if ((byteChar = userFileStream.read()) != -1) { // This clever bit of code inside the () I found from https://www.geeksforgeeks.org/java-io-fileinputstream-class-java/ It lets the filestream signal end of file. Surprisingly the only thing I couldn't really figure out well on my own.
             takeToString = (char)byteChar;
             // System.out.println(byteChar); This is used for testing.
             sendThisOut = String.valueOf(takeToString);
