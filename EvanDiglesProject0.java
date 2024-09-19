@@ -28,7 +28,6 @@ public class EvanDiglesProject0 {
         while (doQuit != true) { // Main loop.
 
             // Variables and resets.
-            Scanner fileScanner;
             File userFile;
             FileInputStream userFileStream;
             currentCharacter[0] = null;
@@ -43,7 +42,6 @@ public class EvanDiglesProject0 {
 
             try { // Check if the file exists.
                 userFile = getFile(userNextLine);
-                fileScanner = new Scanner(userFile);
             } catch (IOException noFile) {
                 System.out.println("That file does not exist.");
                 continue; // Start the loop over if we don't have that file.
@@ -57,7 +55,6 @@ public class EvanDiglesProject0 {
                 } 
             }
 
-            fileScanner.close();
             userFileStream.close();
 
         }
