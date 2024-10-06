@@ -1,7 +1,5 @@
-//Evan Digles COSC 455 Project 0
-// Had a bit of trouble with some other things, so this got pushed back further than I would've liked.
-// I tried some creative solutions, and wasn't sure about the implementation of nextChar() currentChar() and position() 
-// but I double checked with the Professor and everything seems fine here.
+//Evan Digles COSC 455 Project 1
+// Okay.
 
 // Imports.
 import java.util.Scanner;
@@ -9,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileInputStream;
 
-public class EvanDiglesProject0 {
+public class EvanDiglesProject1 {
 
     public static void main(String args[]) throws IOException{ // Main method.
 
