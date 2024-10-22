@@ -16,12 +16,24 @@ public class EvanDiglesProject1 {
         // Variables
 
         boolean doQuit = false; // Is the user done?
-        char acceptableCharacters[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', // Lower case letters.
+        char acceptableCharacters[] = // Acceptable terminal characters for the gammar we're working with.
+                                      {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', // Lower case letters.
                                        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
                                        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', // Upper case letters.
                                        'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // Numbers.
-                                      }; // Acceptable terminal characters for the gammar we're working with.
+                                       ':', '+', '-', '*', '.', ',', ';', '=', '<', '!', '>', '/', '_', '(', ')', // Other symbols.
+                                       ' ', // Ah yes, the common and elusive space.
+                                      }; 
+        String specialSymbols[] = // Special words or symbols with certain meanings from the grammar sheet, in order of appearance on the grammar sheet.
+                                  // These should do something specific, or otherwise be removed from this list later.
+                                  // A check for whitespace or some other symbol after this should come after.
+                                  // Should we iterate through these when looking at each step of lexeme identification, or only at the end?
+                                  // I'll probably go through these and 'trim the fat', which is to say, remove what doesn't need to be here later.
+                                  {"program", ":", ".", "bool", "int", ",", ";", ":=", "if", "then", "else", "end", 
+                                   "while", "do", "print", "<", "=<", "=", "!=", ">=", ">", "+", "-", "or", "*", "/", 
+                                   "mod", "and", "not", "false", "true", "_", 
+                                  };
         Scanner userInput = new Scanner(System.in); // Get User Input.
         String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
                                                    // methods can change it without returning anything.
@@ -55,7 +67,7 @@ public class EvanDiglesProject1 {
             while(currentCharacter[0] != "End-Of-File") { // Until the file is done, keep going.
                 nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
                 if (currentCharacter[0] != "Carriage" && currentCharacter[0] != "End-Of-File") { // As shown in the instructions (Specifically Project 0 Description), whitespace is printed except for these two things. If you copy paste the example, it will print the same intended output.
-                    System.out.println(position(currentLine, currentColumn) + " " + currentCharacter[0]);
+                    System.out.println(position(currentLine, currentColumn) + " " + currentCharacter[0]); // For 
                 } 
             }
 
