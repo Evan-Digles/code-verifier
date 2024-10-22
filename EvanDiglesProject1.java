@@ -1,4 +1,4 @@
-//Evan Digles COSC 455 Project 1
+// Evan Digles COSC 455 Project 1
 // Okay.
 
 // Imports.
@@ -16,6 +16,12 @@ public class EvanDiglesProject1 {
         // Variables
 
         boolean doQuit = false; // Is the user done?
+        char acceptableCharacters[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', // Lower case letters.
+                                       'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
+                                       'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', // Upper case letters.
+                                       'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                                       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // Numbers.
+                                      }; // Acceptable terminal characters for the gammar we're working with.
         Scanner userInput = new Scanner(System.in); // Get User Input.
         String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
                                                    // methods can change it without returning anything.
