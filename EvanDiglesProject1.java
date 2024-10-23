@@ -16,24 +16,33 @@ public class EvanDiglesProject1 {
         // Variables
 
         boolean doQuit = false; // Is the user done?
-        char acceptableCharacters[] = // Acceptable terminal characters for the gammar we're working with.
+        char acceptableCharacters[] = // Acceptable terminal characters for the gammar we're working with. This is good.
                                       {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', // Lower case letters.
                                        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
                                        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', // Upper case letters.
                                        'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // Numbers.
-                                       ':', '+', '-', '*', '.', ',', ';', '=', '<', '!', '>', '/', '_', '(', ')', // Other symbols.
+                                       ':', '+', '-', '*', '.', ',', ';', '=', '<', '!', '>', '/', '_', '(', ')', // Other symbols. NOTE: I can make these if they're specifically occuring in some way be lexically invalid. Such at making just "!" invalid and not "!=".
                                        ' ', // Ah yes, the common and elusive space.
                                       }; 
-        String specialSymbols[] = // Special words or symbols with certain meanings from the grammar sheet, in order of appearance on the grammar sheet.
+        /*String specialSymbols[] = // Special words or symbols with certain meanings from the grammar sheet, in order of appearance on the grammar sheet.
                                   // These should do something specific, or otherwise be removed from this list later.
                                   // A check for whitespace or some other symbol after this should come after.
-                                  // Should we iterate through these when looking at each step of lexeme identification, or only at the end?
+                                    // Should we iterate through these when looking at each step of lexeme identification, or only at the end?
+                                    // Maybe I should check for more than just whitespace if this is encountered?
                                   // I'll probably go through these and 'trim the fat', which is to say, remove what doesn't need to be here later.
                                   {"program", ":", ".", "bool", "int", ",", ";", ":=", "if", "then", "else", "end", 
                                    "while", "do", "print", "<", "=<", "=", "!=", ">=", ">", "+", "-", "or", "*", "/", 
                                    "mod", "and", "not", "false", "true", "_", 
-                                  };
+                                  };*/ // Depreciated, but kept for reference.
+        String keyWords[] = // Special words that are not symbols themselves.
+                            { "program", "bool", "int", "if", "then", "else", "end", "while", "do", 
+                              "print", "or", "mod", "and", "not", "false", "true"
+                            };
+        String symbolTable[] = // Special Symbols or symbol combinations that have some special function.
+                            { ":", ".", ",", ":=", "<", "=<", "=", "!=", ">=", ">", "+", "-", "*",
+                              "/", "_", " ", // I also include whitespace here for some reason.
+                            }; 
         Scanner userInput = new Scanner(System.in); // Get User Input.
         String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
                                                    // methods can change it without returning anything.
@@ -145,6 +154,24 @@ public class EvanDiglesProject1 {
         return position;
     }
 
+    // Lexeme Class and related stuff for Lexemes.
+     class lexeme { // Should require all the same things as nextChar.
+        // Todo: Lexeme storage stuff.
 
+        FileInputStream userFileStream;
+        String currentCharacter[];
+        int currentLine[];
+        int currentColumn[];
+
+        lexeme(FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[]) { // constructor
+            //TODO
+        }
+
+
+    }
+
+    public static void nextLexeme(lexeme inLexeme) {
+
+    }
     
 }
