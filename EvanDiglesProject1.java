@@ -23,7 +23,7 @@ public class EvanDiglesProject1 {
                                        'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', // Numbers.
                                        ':', '+', '-', '*', '.', ',', ';', '=', '<', '!', '>', '/', '_', '(', ')', // Other symbols. NOTE: I can make these if they're specifically occuring in some way be lexically invalid. Such at making just "!" invalid and not "!=".
-                                       ' ', // Ah yes, the common and elusive space.
+                                       ' ', '\n', '\t', // Ah yes, white space!
                                       }; 
         /*String specialSymbols[] = // Special words or symbols with certain meanings from the grammar sheet, in order of appearance on the grammar sheet.
                                   // These should do something specific, or otherwise be removed from this list later.
@@ -43,6 +43,10 @@ public class EvanDiglesProject1 {
                             { ":", ".", ",", ":=", "<", "=<", "=", "!=", ">=", ">", "+", "-", "*",
                               "/", "_", " ", // I also include whitespace here for some reason.
                             }; 
+        String whiteSpace[] = // This stuff we use for white space.
+                            { " ", "\n", "\t", // Our whitespace should be space, newline, and tab.
+                                
+                            };
         Scanner userInput = new Scanner(System.in); // Get User Input.
         String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
                                                    // methods can change it without returning anything.
@@ -127,7 +131,7 @@ public class EvanDiglesProject1 {
                 sendThisOut = "Carriage";
                 currentCharacter[0] = sendThisOut;
             } else {
-                sendThisOut = ""; // Leave empty if there's a new line.
+                sendThisOut = "NewLine"; // Leave empty if there's a new line.
                 currentCharacter[0] = sendThisOut;
             }
             
@@ -158,20 +162,60 @@ public class EvanDiglesProject1 {
      class lexeme { // Should require all the same things as nextChar.
         // Todo: Lexeme storage stuff.
 
+        String theLexeme;
         FileInputStream userFileStream;
         String currentCharacter[];
         int currentLine[];
         int currentColumn[];
+        int lexLine;
+        int lexColumn;
 
         lexeme(FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[]) { // constructor
             //TODO
+
+            this.theLexeme = null;
+            this.userFileStream = userFileStream;
+            this.currentCharacter = currentCharacter;
+            this.currentLine = currentLine;
+            this.currentColumn = currentColumn;
+            this.lexLine = currentLine[0];
+            this.lexColumn = currentColumn[0];
         }
+
+        public void addCharacter(char addThis) {
+            this.theLexeme.concat(String.valueOf(addThis));
+        }
+
+        
 
 
     }
 
-    public static void nextLexeme(lexeme inLexeme) {
+    public static void next(lexeme inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[] ) throws IOException {
+        boolean didWhiteSpace = false;
+        while(didWhiteSpace != true) { // Until the file is done, keep going.
 
+
+            nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
+
+
+            if (currentCharacter[0] == " " || currentCharacter[0] == "\n" || currentCharacter[0] == "\t") { 
+                didWhiteSpace = true;
+            }
+
+
+        }
+    }
+
+    public static boolean checkCurrent(String theChar, char[] acceptArray) { // Returns true if the char is acceptable, otherwise, return false.
+
+        for (char checkThis : acceptArray) {
+            if (theChar.charAt(0) == checkThis) {
+                return true;
+            }
+        }
+
+        return false;
     }
     
 }
