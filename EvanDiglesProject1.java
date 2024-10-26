@@ -47,7 +47,20 @@ public class EvanDiglesProject1 {
                             }; 
         String whiteSpace[] = // This stuff we use for white space.
                             { " ", "\n", "\t", // Our whitespace should be space, newline, and tab.
-                                
+                                               // We shouldn't need to use this, this should mostly just be for reference here.
+                            };                 // I apologize to those who care about efficiency.
+        String acceptableIDCharacters[] = // If we have an ID, then only these characters should be in it. So all letters, digits, and "_".
+                            {// Letters, lower case.
+                                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+                                "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+                             // Letters, upper case.
+                                "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+                                "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+                             // Digits
+                                "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", 
+                             // "_"
+                                "_",
+
                             };
         String kind[] = new String[1]; // Our current kind of lexeme.
         lexeme OurLexeme[] = new lexeme[1]; // Our current lexeme.
@@ -251,13 +264,13 @@ public class EvanDiglesProject1 {
     public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[] ) throws IOException {
         
         inLexeme[0].reset(); // Reset the current lexeme.
-        inLexeme[0].updatePosition();
+        inLexeme[0].updatePosition(); // Update the position to the current starting position of the lexeme.
         boolean didWhiteSpace = false;
         //System.out.println("We got here");
         while(didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) { // Until the current lexeme is done, keep going.
 
             //System.out.println("Char before next: " + currentCharacter[0]);
-            if (currentCharacter[0].equals("")) {
+            if (currentCharacter[0].equals("")) { // Initial start of the file or special white space? Skip it!
                 nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
             }
             //System.out.println("testing");
