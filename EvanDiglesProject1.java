@@ -16,6 +16,8 @@ public class EvanDiglesProject1 {
         // Variables
 
         boolean doQuit = false; // Is the user done?
+
+        // Lexeme Related Variables
         char acceptableCharacters[] = // Acceptable terminal characters for the gammar we're working with. This is good.
                                       {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', // Lower case letters.
                                        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
@@ -47,11 +49,18 @@ public class EvanDiglesProject1 {
                             { " ", "\n", "\t", // Our whitespace should be space, newline, and tab.
                                 
                             };
+        String kind[] = new String[1]; // Our current kind of lexeme.
+        lexeme OurLexeme[] = new lexeme[1]; // Our current lexeme.
+                        
+
+        // Scanner
         Scanner userInput = new Scanner(System.in); // Get User Input.
+
+        // Character Input Related Variables
         String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
                                                    // methods can change it without returning anything.
         int currentLine[] = new int[] {1}; // Line, array for changing. We start at 1 rather than 0.
-        int currentColumn[] = new int[1]; // Column, arracy for changing.
+        int currentColumn[] = new int[] {1}; // Column, arracy for changing.
         
 
         while (doQuit != true) { // Main loop.
@@ -59,7 +68,9 @@ public class EvanDiglesProject1 {
             // Variables and resets.
             File userFile;
             FileInputStream userFileStream;
-            currentCharacter[0] = null;
+            currentCharacter[0] = "";
+
+            
 
             System.out.println("Enter File Name, or type 'quit' or 'exit' to exit the program.");
             String userNextLine = userInput.nextLine();
@@ -69,6 +80,9 @@ public class EvanDiglesProject1 {
                 continue;
             }
 
+            // Testing:
+            setKind("TODO KIND", kind);
+
             try { // Check if the file exists.
                 userFile = getFile(userNextLine);
             } catch (IOException noFile) {
@@ -76,13 +90,21 @@ public class EvanDiglesProject1 {
                 continue; // Start the loop over if we don't have that file.
             }
             userFileStream = new FileInputStream(userFile);
+ 
+            OurLexeme[0] = new lexeme(userFileStream, currentCharacter, currentLine, currentColumn);
 
-            while(currentCharacter[0] != "End-Of-File") { // Until the file is done, keep going.
-                nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
-                if (currentCharacter[0] != "Carriage" && currentCharacter[0] != "End-Of-File") { // As shown in the instructions (Specifically Project 0 Description), whitespace is printed except for these two things. If you copy paste the example, it will print the same intended output.
-                    System.out.println(position(currentLine, currentColumn) + " " + currentCharacter[0]); // For 
-                } 
+            next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn);
+            System.out.println( position(OurLexeme) + " " + kind(OurLexeme) + " " + value(OurLexeme) );
+            //System.out.println(currentCharacter[0]);
+            //System.out.println(OurLexeme[0].toString());
+            while ( currentCharacter[0].equals("End-Of-File") == false ) {
+                //System.out.println("Entered loop?");
+                next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn);
+                //System.out.println(OurLexeme[0]);
+                //System.out.println(currentCharacter[0]);
+                System.out.println( position(OurLexeme) + " " + kind(OurLexeme) + " " + value(OurLexeme) ); 
             }
+                
 
             userFileStream.close();
 
@@ -118,6 +140,7 @@ public class EvanDiglesProject1 {
             sendThisOut = String.valueOf(takeToString);
         } else {
             sendThisOut = "End-Of-File";
+            currentCharacter[0] = "End-Of-File";
         }
         
         if (takeToString != '\n') {
@@ -126,7 +149,7 @@ public class EvanDiglesProject1 {
             currentColumn[0] = 0;
             currentLine[0] = currentLine[0] + 1;
         }
-        if (byteChar == 13 || byteChar == 10) { // We want to ignore the ASCII for Newline and Carriage.
+        if (byteChar == 13 || byteChar == 10) { // We want to ignore the ASCII for Newline and Carriage. Now only the carriage...
             if (byteChar == 13) {
                 sendThisOut = "Carriage";
                 currentCharacter[0] = sendThisOut;
@@ -159,10 +182,12 @@ public class EvanDiglesProject1 {
     }
 
     // Lexeme Class and related stuff for Lexemes.
-     class lexeme { // Should require all the same things as nextChar.
+    static class lexeme { // Should require all the same things as nextChar.
         // Todo: Lexeme storage stuff.
 
         String theLexeme;
+        String theKind = "ID"; // Placeholder for testing.
+        String theValue;
         FileInputStream userFileStream;
         String currentCharacter[];
         int currentLine[];
@@ -173,7 +198,7 @@ public class EvanDiglesProject1 {
         lexeme(FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[]) { // constructor
             //TODO
 
-            this.theLexeme = null;
+            this.theLexeme = "";
             this.userFileStream = userFileStream;
             this.currentCharacter = currentCharacter;
             this.currentLine = currentLine;
@@ -181,9 +206,41 @@ public class EvanDiglesProject1 {
             this.lexLine = currentLine[0];
             this.lexColumn = currentColumn[0];
         }
+        
 
-        public void addCharacter(char addThis) {
-            this.theLexeme.concat(String.valueOf(addThis));
+        public void addCharacter(String addThis) {
+            //System.out.println("Concat " + theLexeme + " " + addThis);
+            this.theLexeme = this.theLexeme.concat(addThis);
+        }
+
+        public void reset() {
+            theLexeme = "";
+        }
+
+        public String toString() {
+            return theLexeme;
+        }
+
+        public void updatePosition() {
+            this.lexLine = currentLine[0];
+            this.lexColumn = currentColumn[0];
+        }
+
+        public String position() {
+            return this.lexLine + " " + this.lexColumn;
+        }
+
+        public String lexemeKind() {
+            return this.theKind;
+        }
+
+        public String lexemeValue() {
+            this.theValue = null;
+            if (this.theKind.equals("ID") || this.theKind.equals("NUM")) {
+                this.theValue = this.theLexeme;
+            } 
+
+            return this.theValue;
         }
 
         
@@ -191,20 +248,39 @@ public class EvanDiglesProject1 {
 
     }
 
-    public static void next(lexeme inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[] ) throws IOException {
+    public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[] ) throws IOException {
+        
+        inLexeme[0].reset(); // Reset the current lexeme.
+        inLexeme[0].updatePosition();
         boolean didWhiteSpace = false;
-        while(didWhiteSpace != true) { // Until the file is done, keep going.
+        //System.out.println("We got here");
+        while(didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) { // Until the current lexeme is done, keep going.
 
-
-            nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
-
-
-            if (currentCharacter[0] == " " || currentCharacter[0] == "\n" || currentCharacter[0] == "\t") { 
-                didWhiteSpace = true;
+            //System.out.println("Char before next: " + currentCharacter[0]);
+            if (currentCharacter[0].equals("")) {
+                nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
             }
+            //System.out.println("testing");
+            //System.out.println(currentCharacter[0]);
+            if (currentCharacter[0].equals("End-Of-File")) {
+                continue;
+            }
+            //System.out.println(inLexeme[0].toString() + "ok");
+            // Hit a whitespace? We should then skip all forwards whitespace and then
+            if (currentCharacter[0].equals("") == true || currentCharacter[0].equals(" ") == true || currentCharacter[0].equals("NewLine") == true || currentCharacter[0].equals("Carriage") || currentCharacter[0].equals("\t") == true || (currentCharacter[0].equals("End-Of-File") == true)) {
+                didWhiteSpace = true;
+                while (currentCharacter[0].equals("") == true || currentCharacter[0].equals(" ") == true || currentCharacter[0].equals("NewLine") == true || currentCharacter[0].equals("Carriage") || currentCharacter[0].equals("\t") == true || (currentCharacter[0].equals("End-Of-File") == true)) { // Skip the whitespace.
+                    nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
+                }
+                continue; // Finished with whitespace? We're done!
+            } else { // Not a whitespace? Put it in!
+                inLexeme[0].addCharacter(currentCharacter[0]);
+            }
+            nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
 
 
         }
+        //System.out.println("We got here 2");
     }
 
     public static boolean checkCurrent(String theChar, char[] acceptArray) { // Returns true if the char is acceptable, otherwise, return false.
@@ -216,6 +292,22 @@ public class EvanDiglesProject1 {
         }
 
         return false;
+    }
+
+    public static String kind(lexeme[] OurLexeme) { // Required in the instructions.
+        return OurLexeme[0].lexemeKind();
+    }
+
+    public static void setKind(String kindOf, String[] kind) { // Use this to set the kind of the lexeme.
+        kind[0] = kindOf;
+    }
+
+    public static String value(lexeme[] OurLexeme) {
+        return OurLexeme[0].lexemeValue();
+    }    
+
+    public static String position(lexeme[] OurLexeme) {
+        return OurLexeme[0].position();
     }
     
 }
