@@ -1,6 +1,6 @@
 // Evan Digles COSC 455 Project 1
 // Okay.
-// IMPORTANT: HEY, YOU SEE THAT FINAL VARIABLE ON LINE 15? YEAH. READ THE COMMENT ABOUT IT PLEASE.
+// IMPORTANT: HEY, YOU SEE THAT FINAL VARIABLE ON LINE 16? YEAH. READ THE COMMENT ABOUT IT PLEASE.
 
 // Imports.
 import java.util.Scanner;
@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileInputStream;
 
+// Class starts here.
 public class EvanDiglesProject1 {
 
 
@@ -177,6 +178,7 @@ public class EvanDiglesProject1 {
 
     }
 
+    // Retrieves the File.
     private static File getFile(String getThisFile) throws IOException { // Get the file, if we don't have the file then throw the error.
 
 
@@ -189,6 +191,7 @@ public class EvanDiglesProject1 {
 
     }
 
+    // Retrieves the next character.
     public static void nextChar(FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[]) throws IOException { // I was trying to be creative. Anyways, this gets a character and sends it to the single digit string array we set earlier.
         
         int byteChar;
@@ -246,6 +249,7 @@ public class EvanDiglesProject1 {
     // Lexeme Class and related stuff for Lexemes.
     static class lexeme { // Should require all the same things as nextChar.
 
+        // Variables
         String theLexeme;
         String theKind = "";
         String theValue;
@@ -273,7 +277,7 @@ public class EvanDiglesProject1 {
             this.letters = letters;
         }
         
-
+        // Adds a character to the lexeme.
         public void addCharacter(String addThis) {
             this.theLexeme = this.theLexeme.concat(addThis);
             if (this.theLexeme.length() == 1) { // If we just added the first character to the Lexeme, we need to see if we can determine it's kind.
@@ -304,35 +308,43 @@ public class EvanDiglesProject1 {
             return;
         }
 
+        // Wipes the lexeme out, leaving nothing behind.
         public void reset() {
             this.theLexeme = "";
         }
 
+        // Good 'ol toString().
         public String toString() {
             return this.theLexeme;
         }
 
+        // In case we need to change the position.
         public void updatePosition() {
             this.lexLine = currentLine[0];
             this.lexColumn = currentColumn[0];
         }
 
+        // Initial position.
         public String position() {
             return this.lexLine + ":" + this.lexColumn;
         }
 
+        // Initial lexeme line.
         public int line() {
             return this.lexLine;
         }
 
+        // Initial lexeme column.
         public int column() {
             return this.lexColumn;
         } 
 
+        // updates the kind of lexeme.
         public void updatelexemeKind(String kind) {
             this.theKind = kind;
         }
 
+        // tells the kind of lexeme.
         public String lexemeKind() {
             return this.theKind;
         }
@@ -355,6 +367,7 @@ public class EvanDiglesProject1 {
 
     }
 
+    // Gets the next lexeme for us.
     public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
         
         inLexeme[0].reset(); // Reset the current lexeme.
@@ -569,6 +582,7 @@ public class EvanDiglesProject1 {
         return true;
     }
 
+    // Checks if we need to apply maximum munch.
     public static boolean munchCheck(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) { // Return true if we need to move over for munch, otherwise return false.
         if (inLexeme[0].lexemeKind().equals("ID")) {
             for (String checkThis : acceptableIDCharacters) {
@@ -587,7 +601,7 @@ public class EvanDiglesProject1 {
         if (inLexeme[0].lexemeKind().equals("OP")) {
             for (String checkThis : symbolTable) {
                 for (int i = 0; i < checkThis.length(); i++) {
-                    if  (currentCharacter[0].equals(String.valueOf(checkThis.charAt(i)))) { // Next character is suitable for the Symbol Table? Go ahead.
+                    if  (currentCharacter[0].equals(String.valueOf(checkThis.charAt(i)))) { // Next character is suitable for the Symbol Table? Go ahead. Unless...
                         if (inLexeme[0].toString().length() >= 2) { // Is the symbol longer than 2? Munch it!
                             return true;
                         }
