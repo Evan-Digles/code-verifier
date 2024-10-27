@@ -44,7 +44,7 @@ public class EvanDiglesProject1 {
                             };
         String symbolTable[] = // Special Symbols or symbol combinations that have some special function.
                             { ":", ".", ",", ":=", "<", "=<", "=", "!=", ">=", ">", "+", "-", "*",
-                              "/", "_", " ", // I also include whitespace here for some reason.
+                              "/", "_", 
                             }; 
         String whiteSpace[] = // This stuff we use for white space.
                             { " ", "\n", "\t", // Our whitespace should be space, newline, and tab.
@@ -71,6 +71,8 @@ public class EvanDiglesProject1 {
         lexeme OurLexeme[] = new lexeme[1]; // Our current lexeme.
         boolean didError[] = {false};
         String errorMessage[] = new String[1];
+        boolean commenting[] = {false};
+        boolean lexDone[] = {false};
 
         // I should probably just put all the lexeme related variables into an object and pass that object instead. But I can wait
         // on making that change until project 2 or something. As long as the code works and works clearly it should be fine.
@@ -104,7 +106,7 @@ public class EvanDiglesProject1 {
             }
 
             // Testing:
-            setKind("TODO KIND", kind);
+            //setKind("TODO KIND", kind);
 
             try { // Check if the file exists.
                 userFile = getFile(userNextLine);
@@ -116,13 +118,14 @@ public class EvanDiglesProject1 {
  
             OurLexeme[0] = new lexeme(userFileStream, currentCharacter, currentLine, currentColumn);
 
-            next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers);
+            
+            next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, commenting, lexDone, true);
             System.out.println( position(OurLexeme) + " '" + kind(OurLexeme) + "' " + value(OurLexeme) );
             //System.out.println(currentCharacter[0]);
             //System.out.println(OurLexeme[0].toString());
-            while ( currentCharacter[0].equals("End-Of-File") == false && didError[0] == false) {
+            while ( lexDone[0] == false && didError[0] == false) {
                 //System.out.println("Entered loop?");
-                next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers);
+                next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, commenting, lexDone, false);
                 if (didError[0] == true) {
                     System.out.println(errorMessage[0]);
                     continue; // Don't print the next thing.
@@ -191,6 +194,7 @@ public class EvanDiglesProject1 {
         }
 
         //System.out.println(currentChar);
+        //System.out.println(currentCharacter[0] + " " + currentColumn[0] ); Useful debug. Use this if a position is off.
 
         return;
     }
@@ -213,7 +217,7 @@ public class EvanDiglesProject1 {
         // Todo: Lexeme storage stuff.
 
         String theLexeme;
-        String theKind = "ID"; // Placeholder for testing.
+        String theKind = ""; // Placeholder for testing.
         String theValue;
         FileInputStream userFileStream;
         String currentCharacter[];
@@ -241,11 +245,11 @@ public class EvanDiglesProject1 {
         }
 
         public void reset() {
-            theLexeme = "";
+            this.theLexeme = "";
         }
 
         public String toString() {
-            return theLexeme;
+            return this.theLexeme;
         }
 
         public void updatePosition() {
@@ -282,55 +286,113 @@ public class EvanDiglesProject1 {
             return this.theValue;
         }
 
+        public void commentReshape(int commentStartAt) { // We use this in the case of a comment occuring to remove the //.
+            this.theLexeme = this.theLexeme.substring(0, commentStartAt);
+        }
+
         
 
 
     }
 
-    public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers ) throws IOException {
+    public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
         
         inLexeme[0].reset(); // Reset the current lexeme.
         inLexeme[0].updatePosition(); // Update the position to the current starting position of the lexeme.
-        inLexeme[0].updatelexemeKind("ID"); // temporary...
+        inLexeme[0].updatelexemeKind(""); // temporary...
         boolean didWhiteSpace = false;
+        boolean possibleComment = false;
+        boolean didInterior = false;
+        boolean needToUpdatePosition = false;
         //System.out.println("We got here");
         while((didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) && didError[0] != true) { // Until the current lexeme is done, keep going.
 
             // Check if the character being put in is valid.
-            if (checkCurrent(currentCharacter[0], acceptableCharacters) == false) {
-                didError[0] = true;
-                //System.out.println(didError);
-                errorMessage[0] = ("Unacceptable Character '" + currentCharacter[0] + "' at: " + currentLine[0] + ":" + currentColumn[0]);
-                continue;
+            if (commenting[0] == true && currentCharacter[0].equals("NewLine")) { // Newlines exit us from the comment mode.
+
+                commenting[0] = false;
             }
 
+            if (needToUpdatePosition == true) { // If there was a comment in the previous line, we need to update the position at the next non-white space.
+                needToUpdatePosition = false;
+                inLexeme[0].updatePosition();
+            }
 
-            if (currentCharacter[0].equals("")) { // Initial start of the file or special white space? Skip it!
-                nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
-            }
-            //System.out.println("testing");
-            //System.out.println(currentCharacter[0]);
-            if (currentCharacter[0].equals("End-Of-File")) {
-                continue;
-            }
-            //System.out.println(inLexeme[0].toString() + "ok");
-            // Hit a whitespace? We should then skip all forwards whitespace and then
-            if (currentCharacter[0].equals("") == true || currentCharacter[0].equals(" ") == true || currentCharacter[0].equals("NewLine") == true || currentCharacter[0].equals("Carriage") || currentCharacter[0].equals("\t") == true || (currentCharacter[0].equals("End-Of-File") == true)) {
-                didWhiteSpace = true;
-                while (currentCharacter[0].equals("") == true || currentCharacter[0].equals(" ") == true || currentCharacter[0].equals("NewLine") == true || currentCharacter[0].equals("Carriage") || currentCharacter[0].equals("\t") == true || (currentCharacter[0].equals("End-Of-File") == true)) { // Skip the whitespace.
-                    nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
+            if (commenting[0] == false) {
+                if (checkCurrent(currentCharacter[0], acceptableCharacters) == false) {
+                    didError[0] = true;
+                    //System.out.println(didError);
+                    errorMessage[0] = ("Unacceptable Character '" + currentCharacter[0] + "' at: " + currentLine[0] + ":" + currentColumn[0]);
+                    continue;
                 }
-                continue; // Finished with whitespace? We're done!
-            } else { // Not a whitespace? Put it in!
-                inLexeme[0].addCharacter(currentCharacter[0]);
+
+
+                if (currentCharacter[0].equals("")) { // Initial start of the file or special white space? Skip it!
+                    nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
+                    if (isFirst == true && (currentCharacter[0].equals(" ") == true)) { // Boring, hacky way that changes a number caused by an inconsequential
+                                                                                                 // bug that has taken me more time to try to fix than it took to write this code.
+                                                                                                 // It was faster to do this than to continue to try and fix the issue.
+                                                                                                 // Is it inefficient? Yes. Do I hate it? Also yes. Will this be the same in the final project for the semester?
+                                                                                                 // I certainly hope so! If I couldn't figure it out today, then I'm probably incapable of figuring it out period.
+                        currentColumn[0] = currentColumn[0] - 1;
+                        inLexeme[0].updatePosition();
+                    }
+                }
+                //System.out.println("testing");
+                //System.out.println(currentCharacter[0]);
+                //System.out.println(inLexeme[0].toString() + "ok");
+                // Hit a whitespace? We should then skip all forwards whitespace and then
+                if (currentCharacter[0].equals("") == true || currentCharacter[0].equals(" ") == true || currentCharacter[0].equals("NewLine") == true || currentCharacter[0].equals("Carriage") || currentCharacter[0].equals("\t") == true /*|| (currentCharacter[0].equals("End-Of-File") == true)*/) {
+                    didWhiteSpace = true;
+                    while (currentCharacter[0].equals("") == true || currentCharacter[0].equals(" ") == true || currentCharacter[0].equals("NewLine") == true || currentCharacter[0].equals("Carriage") || currentCharacter[0].equals("\t") == true /*|| (currentCharacter[0].equals("End-Of-File") == true)*/) { // Skip the whitespace.
+                        nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
+                    }
+                    if (inLexeme[0].toString().equals("")) {
+                        didWhiteSpace = false;
+                        needToUpdatePosition = true;
+                    }
+                    continue; // Finished with whitespace? We're done!
+                } else { // Not a whitespace? Put it in!
+                    if (possibleComment == true && currentCharacter[0].equals("/")) {
+                        commenting[0] = true;
+                        //System.out.println("We got here");
+                        //System.out.println(inLexeme[0].toString().length());
+                        //System.out.println(inLexeme[0].toString());
+                        if (inLexeme[0].toString().length() > 1) { // If there's no white space and a //, remove the // and leave the lexeme.
+                            inLexeme[0].commentReshape(inLexeme[0].toString().length() - 1);
+                        } else { // Otherwise, there is no lexeme, remove the // also.
+                            inLexeme[0].reset();
+                            didWhiteSpace = false;
+                        }
+                    } else if (possibleComment == false && currentCharacter[0].equals("/")) {
+                        possibleComment = true;
+                        inLexeme[0].addCharacter(currentCharacter[0]);
+                    } else { // Not commenting? Go ahead then.
+                        inLexeme[0].addCharacter(currentCharacter[0]);
+                        possibleComment = false;
+                    }
+                }
+                nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
+
+
+            } else {
+                didWhiteSpace = false;
+                nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
             }
-            nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
-
-
-        }
+            didInterior = true;
+        } 
+        
         //So we have our full complete lexeme. Now we need to check if it's lexically correct. Lets hand that off to another helper method.
-        if (finalLexicalCheck(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers) == false ) {
-            didError[0] = true;
+        if (inLexeme[0].toString().length() > 0) {
+            if (finalLexicalCheck(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers) == false ) {
+                didError[0] = true;
+            } 
+        }
+        if (currentCharacter[0].equals("End-Of-File") && didInterior == false) {
+            inLexeme[0].addCharacter("End-Of-File");
+            inLexeme[0].updatelexemeKind("end-of-text"); // If this wasn't explicitly required in the instructions I would have it as "End-Of-File".
+            //in
+            lexDone[0] = true;
         } 
 
     }
@@ -393,6 +455,7 @@ public class EvanDiglesProject1 {
                 }
             }
         } else {
+            inLexeme[0].updatelexemeKind("ID");
             for (int i = 0; i < inLexeme[0].toString().length(); i++) {
                 boolean noError = false;
                 for (String checkThis : accaptableIDCharacters) {
