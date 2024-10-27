@@ -19,6 +19,7 @@ public class EvanDiglesProject1 {
 
         // Lexeme Related Variables
         char acceptableCharacters[] = // Acceptable terminal characters for the gammar we're working with. This is good.
+                                      // Note, if the character doesn't appear here, it should NEVER appear in ANY input file.
                                       {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', // Lower case letters.
                                        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
                                        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', // Upper case letters.
@@ -64,6 +65,11 @@ public class EvanDiglesProject1 {
                             };
         String kind[] = new String[1]; // Our current kind of lexeme.
         lexeme OurLexeme[] = new lexeme[1]; // Our current lexeme.
+        boolean didError[] = {false};
+        String errorMessage[] = new String[1];
+
+        // I should probably just put all the lexeme related variables into an object and pass that object instead. But I can wait
+        // on making that change until project 2 or something. As long as the code works and works clearly it should be fine.
                         
 
         // Scanner
@@ -106,16 +112,20 @@ public class EvanDiglesProject1 {
  
             OurLexeme[0] = new lexeme(userFileStream, currentCharacter, currentLine, currentColumn);
 
-            next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn);
-            System.out.println( position(OurLexeme) + " " + kind(OurLexeme) + " " + value(OurLexeme) );
+            next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters);
+            System.out.println( position(OurLexeme) + " '" + kind(OurLexeme) + "' " + value(OurLexeme) );
             //System.out.println(currentCharacter[0]);
             //System.out.println(OurLexeme[0].toString());
-            while ( currentCharacter[0].equals("End-Of-File") == false ) {
+            while ( currentCharacter[0].equals("End-Of-File") == false && didError[0] == false) {
                 //System.out.println("Entered loop?");
-                next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn);
+                next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters);
+                if (didError[0] == true) {
+                    System.out.println(errorMessage[0]);
+                    continue; // Don't print the next thing.
+                }
                 //System.out.println(OurLexeme[0]);
                 //System.out.println(currentCharacter[0]);
-                System.out.println( position(OurLexeme) + " " + kind(OurLexeme) + " " + value(OurLexeme) ); 
+                System.out.println( position(OurLexeme) + " '" + kind(OurLexeme) + "' " + value(OurLexeme) ); 
             }
                 
 
@@ -240,15 +250,19 @@ public class EvanDiglesProject1 {
         }
 
         public String position() {
-            return this.lexLine + " " + this.lexColumn;
+            return this.lexLine + ":" + this.lexColumn;
+        }
+
+        public void updatelexemeKind(String kind) {
+            this.theKind = kind;
         }
 
         public String lexemeKind() {
             return this.theKind;
         }
 
-        public String lexemeValue() {
-            this.theValue = null;
+        public String lexemeValue() { // If it's an ID or a NUM, the value should change to that, otherwise it should stay blank...
+            this.theValue = "";
             if (this.theKind.equals("ID") || this.theKind.equals("NUM")) {
                 this.theValue = this.theLexeme;
             } 
@@ -261,15 +275,24 @@ public class EvanDiglesProject1 {
 
     }
 
-    public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[] ) throws IOException {
+    public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters ) throws IOException {
         
         inLexeme[0].reset(); // Reset the current lexeme.
         inLexeme[0].updatePosition(); // Update the position to the current starting position of the lexeme.
+        inLexeme[0].updatelexemeKind("ID"); // temporary...
         boolean didWhiteSpace = false;
         //System.out.println("We got here");
-        while(didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) { // Until the current lexeme is done, keep going.
+        while((didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) && didError[0] != true) { // Until the current lexeme is done, keep going.
 
-            //System.out.println("Char before next: " + currentCharacter[0]);
+            // Check if the character bing put in is valid.
+            if (checkCurrent(currentCharacter[0], acceptableCharacters) == false) {
+                didError[0] = true;
+                //System.out.println(didError);
+                errorMessage[0] = ("Unacceptable Character " + currentCharacter[0] + " at: " + currentLine[0] + ":" + currentColumn[0]);
+                continue;
+            }
+
+
             if (currentCharacter[0].equals("")) { // Initial start of the file or special white space? Skip it!
                 nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
             }
@@ -293,14 +316,33 @@ public class EvanDiglesProject1 {
 
 
         }
-        //System.out.println("We got here 2");
+        //So we have our full complete lexeme. Now we need to check if it's lexically correct. Lets hand that off to another helper method.
+        finalLexicalCheck(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters);
+
     }
 
     public static boolean checkCurrent(String theChar, char[] acceptArray) { // Returns true if the char is acceptable, otherwise, return false.
 
         for (char checkThis : acceptArray) {
-            if (theChar.charAt(0) == checkThis) {
+            //System.out.println("Does " + theChar + " equal " + Character.toString(checkThis)); // Debug for finding issues.
+            if (theChar.equals("") || theChar.equals("Carriage") || theChar.equals("NewLine") || theChar.equals("End-Of-File") || (theChar.equals(Character.toString(checkThis)))) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    // This should check the final form of our most powerful lexemes!
+    public static boolean finalLexicalCheck(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String keyWords[], String symbolTable[], String accaptableIDCharacters[] ) {
+
+        boolean done = false;
+
+        for (String checkThis : keyWords) { // First, we check if this one of our keywords.
+            if (inLexeme[0].toString().equals(checkThis)) {
+                done = true;
+                inLexeme[0].updatelexemeKind(checkThis);
+                continue;
             }
         }
 
