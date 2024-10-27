@@ -486,7 +486,7 @@ public class EvanDiglesProject1 {
 
         for (char checkThis : acceptArray) {
             //System.out.println("Does " + theChar + " equal " + Character.toString(checkThis)); // Debug for finding issues.
-            if (theChar.equals("") || theChar.equals("Carriage") || theChar.equals("NewLine") || theChar.equals("End-Of-File") || (theChar.equals(Character.toString(checkThis)))) {
+            if (theChar.equals("") || theChar.equals("Carriage") || theChar.equals("NewLine") || theChar.equals("End-Of-File") || (theChar.equals(String.valueOf(checkThis)))) {
                 return true;
             }
         }
@@ -588,11 +588,19 @@ public class EvanDiglesProject1 {
             for (String checkThis : symbolTable) {
                 for (int i = 0; i < checkThis.length(); i++) {
                     if  (currentCharacter[0].equals(String.valueOf(checkThis.charAt(i)))) { // Next character is suitable for the Symbol Table? Go ahead.
+                        if (inLexeme[0].toString().length() >= 2) { // Is the symbol longer than 2? Munch it!
+                            return true;
+                        }
+                        if (inLexeme[0].toString().equals(currentCharacter[0]) && (currentCharacter[0].equals("/") == false)) { // Repeating symbol? Munch it!... Unless it's a comment.
+                            return true;
+                        }
                         return false;
                     }
                 }
             }
+            
         }
+        
 
         return true;
     }
