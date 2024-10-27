@@ -63,6 +63,10 @@ public class EvanDiglesProject1 {
                                 "_",
 
                             };
+        String numbers[] = // In case it's a number.
+                        {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+
+                        };
         String kind[] = new String[1]; // Our current kind of lexeme.
         lexeme OurLexeme[] = new lexeme[1]; // Our current lexeme.
         boolean didError[] = {false};
@@ -112,13 +116,13 @@ public class EvanDiglesProject1 {
  
             OurLexeme[0] = new lexeme(userFileStream, currentCharacter, currentLine, currentColumn);
 
-            next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters);
+            next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers);
             System.out.println( position(OurLexeme) + " '" + kind(OurLexeme) + "' " + value(OurLexeme) );
             //System.out.println(currentCharacter[0]);
             //System.out.println(OurLexeme[0].toString());
             while ( currentCharacter[0].equals("End-Of-File") == false && didError[0] == false) {
                 //System.out.println("Entered loop?");
-                next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters);
+                next(OurLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers);
                 if (didError[0] == true) {
                     System.out.println(errorMessage[0]);
                     continue; // Don't print the next thing.
@@ -253,6 +257,14 @@ public class EvanDiglesProject1 {
             return this.lexLine + ":" + this.lexColumn;
         }
 
+        public int line() {
+            return this.lexLine;
+        }
+
+        public int column() {
+            return this.lexColumn;
+        } 
+
         public void updatelexemeKind(String kind) {
             this.theKind = kind;
         }
@@ -275,7 +287,7 @@ public class EvanDiglesProject1 {
 
     }
 
-    public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters ) throws IOException {
+    public static void next(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers ) throws IOException {
         
         inLexeme[0].reset(); // Reset the current lexeme.
         inLexeme[0].updatePosition(); // Update the position to the current starting position of the lexeme.
@@ -284,11 +296,11 @@ public class EvanDiglesProject1 {
         //System.out.println("We got here");
         while((didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) && didError[0] != true) { // Until the current lexeme is done, keep going.
 
-            // Check if the character bing put in is valid.
+            // Check if the character being put in is valid.
             if (checkCurrent(currentCharacter[0], acceptableCharacters) == false) {
                 didError[0] = true;
                 //System.out.println(didError);
-                errorMessage[0] = ("Unacceptable Character " + currentCharacter[0] + " at: " + currentLine[0] + ":" + currentColumn[0]);
+                errorMessage[0] = ("Unacceptable Character '" + currentCharacter[0] + "' at: " + currentLine[0] + ":" + currentColumn[0]);
                 continue;
             }
 
@@ -317,7 +329,9 @@ public class EvanDiglesProject1 {
 
         }
         //So we have our full complete lexeme. Now we need to check if it's lexically correct. Lets hand that off to another helper method.
-        finalLexicalCheck(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters);
+        if (finalLexicalCheck(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers) == false ) {
+            didError[0] = true;
+        } 
 
     }
 
@@ -334,19 +348,69 @@ public class EvanDiglesProject1 {
     }
 
     // This should check the final form of our most powerful lexemes!
-    public static boolean finalLexicalCheck(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String keyWords[], String symbolTable[], String accaptableIDCharacters[] ) {
-
-        boolean done = false;
+    // Returns true if it's fine, and false if there's an error.
+    public static boolean finalLexicalCheck(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String keyWords[], String symbolTable[], String accaptableIDCharacters[], String numbers[] ) {
 
         for (String checkThis : keyWords) { // First, we check if this one of our keywords.
             if (inLexeme[0].toString().equals(checkThis)) {
-                done = true;
                 inLexeme[0].updatelexemeKind(checkThis);
-                continue;
+                return true;
             }
         }
 
-        return false;
+        for (String checkThis : symbolTable) { // Then we check if it's in the symbol table.
+            if (inLexeme[0].toString().equals(checkThis)) {
+                inLexeme[0].updatelexemeKind(checkThis);
+                return true;
+            }
+        }
+
+        // Otherwise we need to check if it's a number or a letter.
+        // So, if the first letter is a number, assume it is a number, and then check if all the parts are numbers.
+        boolean isANum = false;
+        for (String checkThis : numbers) {
+            if (inLexeme[0].toString().substring(0, 1).equals(checkThis)) {
+                isANum = true;
+                inLexeme[0].updatelexemeKind("NUM");
+                continue;
+            }
+        }
+        
+        // If it's a number, make sure it meets the only digits specification. Otherwise, assume it is an ID and make sure it meets that.
+        // It's easiest to check for it being a number first since we know numbers always start with a number, according to our grammar.
+        if (isANum == true) {
+            for (int i = 0; i < inLexeme[0].toString().length(); i++) {
+                boolean noError = false;
+                for (String checkThis : numbers) {
+                    if (inLexeme[0].toString().substring(i, i + 1).equals(checkThis)) {
+                        noError = true;
+                        continue;
+                    }
+                }
+                if (noError == false) {
+                    errorMessage[0] = "Unacceptable character for a NUM " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i); 
+                    return false;
+                }
+            }
+        } else {
+            for (int i = 0; i < inLexeme[0].toString().length(); i++) {
+                boolean noError = false;
+                for (String checkThis : accaptableIDCharacters) {
+                    if (inLexeme[0].toString().substring(i, i + 1).equals(checkThis)) {
+                        noError = true;
+                        continue;
+                    }
+                }
+                if (noError == false) {
+                    errorMessage[0] = "Unacceptable character for an ID " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i); 
+                    return false;
+                }
+            }
+        }
+
+        
+        // Evrything went fine and it is an ID? Good job! We're done here so return true.
+        return true;
     }
 
     public static String kind(lexeme[] OurLexeme) { // Required in the instructions.
@@ -357,11 +421,11 @@ public class EvanDiglesProject1 {
         kind[0] = kindOf;
     }
 
-    public static String value(lexeme[] OurLexeme) {
+    public static String value(lexeme[] OurLexeme) { // Required in the instructions.
         return OurLexeme[0].lexemeValue();
     }    
 
-    public static String position(lexeme[] OurLexeme) {
+    public static String position(lexeme[] OurLexeme) { // Required in the instructions.
         return OurLexeme[0].position();
     }
     
