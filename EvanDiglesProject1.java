@@ -1,5 +1,6 @@
 // Evan Digles COSC 455 Project 1
 // Okay.
+// IMPORTANT: HEY, YOU SEE THAT FINAL VARIABLE ON LINE 15? YEAH. READ THE COMMENT ABOUT IT PLEASE.
 
 // Imports.
 import java.util.Scanner;
@@ -9,16 +10,25 @@ import java.io.FileInputStream;
 
 public class EvanDiglesProject1 {
 
+
+    // IMPORTANT: If you want the output to look exactly like the given examples, change this to true.
+    static final boolean makeLikeExample = false; // I... I don't know if I can use this more than just here???
+    // IMPORTANT see above.
+
     public static void main(String args[]) throws IOException{ // Main method.
 
-        System.out.println("Welcome to the program! Please enter the name of the File that you'd like to read from."); // Placeholder starting text.
+        if (makeLikeExample == false) {
+            System.out.println("Welcome to the program! Please enter the name of the File that you'd like to read from."); // My beloved starting text.
+        } else if (makeLikeExample == true) {
+            //don't
+        }
 
         // Variables
 
         boolean doQuit = false; // Is the user done?
 
         // Lexeme Related Variables
-        char acceptableCharacters[] = // Acceptable terminal characters for the gammar we're working with. This is good.
+        final char acceptableCharacters[] = // Acceptable terminal characters for the gammar we're working with. This is good.
                                       // Note, if the character doesn't appear here, it should NEVER appear in ANY input file.
                                       {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', // Lower case letters.
                                        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 
@@ -38,19 +48,19 @@ public class EvanDiglesProject1 {
                                    "while", "do", "print", "<", "=<", "=", "!=", ">=", ">", "+", "-", "or", "*", "/", 
                                    "mod", "and", "not", "false", "true", "_", 
                                   };*/ // Depreciated, but kept for reference.
-        String keyWords[] = // Special words that are not symbols themselves.
+        final String keyWords[] = // Special words that are not symbols themselves.
                             { "program", "bool", "int", "if", "then", "else", "end", "while", "do", 
                               "print", "or", "mod", "and", "not", "false", "true"
                             };
-        String symbolTable[] = // Special Symbols or symbol combinations that have some special function. These should also separate lexemes...
+        final String symbolTable[] = // Special Symbols or symbol combinations that have some special function. These should also separate lexemes...
                             { ":", ".", ",", ":=", "<", "=<", "=", "!=", ">=", ">", "+", "-", "*",
-                              "/", ";",
+                              "/", ";", "(", ")",
                             }; 
-        String whiteSpace[] = // This stuff we use for white space.
+        final String whiteSpace[] = // This stuff we use for white space.
                             { " ", "\n", "\t", // Our whitespace should be space, newline, and tab.
                                                // We shouldn't need to use this, this should mostly just be for reference here.
                             };                 // I apologize to those who care about efficiency.
-        String acceptableIDCharacters[] = // If we have an ID, then only these characters should be in it. So all letters, digits, and "_".
+        final String acceptableIDCharacters[] = // If we have an ID, then only these characters should be in it. So all letters, digits, and "_".
                             {// Letters, lower case.
                                 "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
                                 "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
@@ -63,11 +73,11 @@ public class EvanDiglesProject1 {
                                 "_",
 
                             };
-        String numbers[] = // In case it's a number.
+        final String numbers[] = // In case it's a number.
                         {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
 
                         };
-        String letters[] = // In case it's a letter.
+        final String letters[] = // In case it's a letter.
                         {// Letters, lower case.
                             "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
                             "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
@@ -75,11 +85,9 @@ public class EvanDiglesProject1 {
                             "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
                             "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
                         };
-        lexeme inLexeme[] = new lexeme[1]; // Our current lexeme.
-        boolean didError[] = {false};
-        String errorMessage[] = new String[1];
-        boolean commenting[] = {false};
-        boolean lexDone[] = {false};
+
+
+        
 
         // I should probably just put all the lexeme related variables into an object and pass that object instead. But I can wait
         // on making that change until project 2 or something. As long as the code works and works clearly it should be fine.
@@ -88,23 +96,38 @@ public class EvanDiglesProject1 {
         // Scanner
         Scanner userInput = new Scanner(System.in); // Get User Input.
 
-        // Character Input Related Variables
-        String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
-                                                   // methods can change it without returning anything.
-        int currentLine[] = new int[] {1}; // Line, array for changing. We start at 1 rather than 0.
-        int currentColumn[] = new int[] {1}; // Column, arracy for changing.
+        
         
 
         while (doQuit != true) { // Main loop.
 
             // Variables and resets.
+
+            // Character Input Related Variables
+            String currentCharacter[] = new String[1]; // NOTE: not actually a character, but a string. We use an array here so that
+                                                    // methods can change it without returning anything.
+            int currentLine[] = new int[] {1}; // Line, array for changing. We start at 1 rather than 0.
+            int currentColumn[] = new int[] {0}; // Column, array for changing.
+
+            // File
             File userFile;
             FileInputStream userFileStream;
             currentCharacter[0] = "";
 
-            
+            // Lexeme stuff that needs to get reset.
+            lexeme inLexeme[] = new lexeme[1]; // Our current lexeme.
+            boolean didError[] = {false};
+            String errorMessage[] = new String[1];
+            boolean commenting[] = {false};
+            boolean lexDone[] = {false};
 
-            System.out.println("Enter File Name, or type 'quit' or 'exit' to exit the program.");
+            
+            if (makeLikeExample == false) {
+                System.out.println("Enter File Name, or type 'quit' or 'exit' to exit the program.");
+            } else if (makeLikeExample == true) {
+                System.out.println("Please enter a file to analyze (or quit):");
+            }
+            
             String userNextLine = userInput.nextLine();
 
             if (userNextLine.toLowerCase().equals("quit") || userNextLine.toLowerCase().equals("exit")) { // If we quit, we quit.
@@ -124,19 +147,23 @@ public class EvanDiglesProject1 {
 
             
             next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, true);
-            System.out.println( position(inLexeme) + " '" + kind(inLexeme) + "' " + value(inLexeme) );
-            //System.out.println(currentCharacter[0]);
-            //System.out.println(inLexeme[0].toString());
+            if (makeLikeExample == false) {
+                System.out.println( position(inLexeme) + " '" + kind(inLexeme) + "' " + value(inLexeme) );
+            } else if (makeLikeExample == true) {
+                System.out.println( position(inLexeme) + ":'" + kind(inLexeme) + "' " + value(inLexeme) );
+            }
             while ( lexDone[0] == false && didError[0] == false) {
-                //System.out.println("Entered loop?");
+                //System.out.println("Entered loop?"); Useful for debugging.
                 next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
                 if (didError[0] == true) {
                     System.out.println(errorMessage[0]);
                     continue; // Don't print the next thing.
                 }
-                //System.out.println(inLexeme[0]);
-                //System.out.println(currentCharacter[0]);
-                System.out.println( position(inLexeme) + " '" + kind(inLexeme) + "' " + value(inLexeme) ); 
+                if (makeLikeExample == false) {
+                    System.out.println( position(inLexeme) + " '" + kind(inLexeme) + "' " + value(inLexeme) );
+                } else if (makeLikeExample == true) {
+                    System.out.println( position(inLexeme) + ":'" + kind(inLexeme) + "' " + value(inLexeme) );
+                }
             }
                 
 
@@ -218,10 +245,9 @@ public class EvanDiglesProject1 {
 
     // Lexeme Class and related stuff for Lexemes.
     static class lexeme { // Should require all the same things as nextChar.
-        // Todo: Lexeme storage stuff.
 
         String theLexeme;
-        String theKind = ""; // Placeholder for testing.
+        String theKind = "";
         String theValue;
         FileInputStream userFileStream;
         String currentCharacter[];
@@ -249,7 +275,6 @@ public class EvanDiglesProject1 {
         
 
         public void addCharacter(String addThis) {
-            //System.out.println("Concat " + theLexeme + " " + addThis);
             this.theLexeme = this.theLexeme.concat(addThis);
             if (this.theLexeme.length() == 1) { // If we just added the first character to the Lexeme, we need to see if we can determine it's kind.
                 // First, check if it's an ID/keyword. If it can be a keyword it'll be caught later by the final check.
@@ -334,13 +359,13 @@ public class EvanDiglesProject1 {
         
         inLexeme[0].reset(); // Reset the current lexeme.
         inLexeme[0].updatePosition(); // Update the position to the current starting position of the lexeme.
-        inLexeme[0].updatelexemeKind(""); // temporary...
+        inLexeme[0].updatelexemeKind("");
         boolean didWhiteSpace = false;
         boolean possibleComment = false;
         boolean didInterior = false;
         boolean needToUpdatePosition = false;
         boolean munchHalt = false;
-        //System.out.println("We got here");
+        //System.out.println("We got here"); Debug
         while((didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) && didError[0] != true && munchHalt != true) { // Until the current lexeme is done, keep going.
 
             // Check if the character being put in is valid.
@@ -355,28 +380,28 @@ public class EvanDiglesProject1 {
             }
 
             if (commenting[0] == false) {
-                if (checkCurrent(currentCharacter[0], acceptableCharacters) == false) {
-                    didError[0] = true;
-                    //System.out.println(didError);
-                    errorMessage[0] = ("Unacceptable Character '" + currentCharacter[0] + "' at: " + currentLine[0] + ":" + currentColumn[0]);
-                    continue;
-                }
+                
 
 
-                if (currentCharacter[0].equals("")) { // Initial start of the file or special white space? Skip it!
+                /*if (currentCharacter[0].equals("")) { // Initial start of the file or special white space? Skip it!
                     nextChar(userFileStream, currentCharacter, currentLine, currentColumn); // Get the initial character.
                     if (isFirst == true && (currentCharacter[0].equals(" ") == true)) { // Boring, hacky way that changes a number caused by an inconsequential
                                                                                                  // bug that has taken me more time to try to fix than it took to write this code.
                                                                                                  // It was faster to do this than to continue to try and fix the issue.
                                                                                                  // Is it inefficient? Yes. Do I hate it? Also yes. Will this be the same in the final project for the semester?
                                                                                                  // I certainly hope so! If I couldn't figure it out today, then I'm probably incapable of figuring it out period.
-                        currentColumn[0] = currentColumn[0] - 1;
+                        currentColumn[0] = currentColumn[0] - 1;                                 // My hopes have been quashed, as mere minutes later this bug was fixed.
                         inLexeme[0].updatePosition();
                     }
-                }
-                //System.out.println("testing");
-                //System.out.println(currentCharacter[0]);
-                //System.out.println(inLexeme[0].toString() + "ok");
+                } */
+
+
+                // nevermind this bug gets fixed by the munchCheck helper method...
+                // Just goes to show to not worry about doing hacky things to try and fix your code
+                // until after you have all the required implementation working.
+
+
+
                 // Hit a whitespace? We should then skip all forwards whitespace and then
                 if (currentCharacter[0].equals("") == true || currentCharacter[0].equals(" ") == true || currentCharacter[0].equals("NewLine") == true || currentCharacter[0].equals("Carriage") || currentCharacter[0].equals("\t") == true /*|| (currentCharacter[0].equals("End-Of-File") == true)*/) {
                     didWhiteSpace = true;
@@ -391,20 +416,34 @@ public class EvanDiglesProject1 {
                 } 
                 // Maximum Munch Check.
                 if (munchCheck(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == true && inLexeme[0].toString().length() > 0) {
-                //if (currentCharacter[0].equals(";") && inLexeme[0].toString().length() > 0) {
+                //if (currentCharacter[0].equals(";") && inLexeme[0].toString().length() > 0) { // Debug. I won't take this comment out because of sentimental reasons.
                     munchHalt = true;
                     continue;
                 }
                 if (munchHalt == true) { // We need this for further loops.
                     continue;
                 }
+
+                    if (checkCurrent(currentCharacter[0], acceptableCharacters) == false) {
+                        didError[0] = true;
+                        //System.out.println(didError);
+                        if (makeLikeExample == false) {
+                            errorMessage[0] = ("Unacceptable Character '" + currentCharacter[0] + "' at: " + currentLine[0] + ":" + currentColumn[0]);
+                        } else if (makeLikeExample == true) {
+                            errorMessage[0] = currentLine[0] + ":" + currentColumn[0] + ":>>>>> Illegal character " + currentCharacter[0];
+                        }
+                        continue;
+                    }
                 
                     // Not a whitespace? Put it in!
                     if (possibleComment == true && currentCharacter[0].equals("/")) {
                         commenting[0] = true;
+
+                        // More useful debug.
                         //System.out.println("We got here");
                         //System.out.println(inLexeme[0].toString().length());
                         //System.out.println(inLexeme[0].toString());
+
                         if (inLexeme[0].toString().length() > 1) { // If there's no white space and a //, remove the // and leave the lexeme.
                             inLexeme[0].commentReshape(inLexeme[0].toString().length() - 1);
                         } else { // Otherwise, there is no lexeme, remove the // also.
@@ -496,7 +535,11 @@ public class EvanDiglesProject1 {
                     }
                 }
                 if (noError == false) {
-                    errorMessage[0] = "Unacceptable character for a NUM " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i); 
+                    if (makeLikeExample == false) {
+                    errorMessage[0] = "Unacceptable character for a NUM " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i);
+                    } else if (makeLikeExample == true) {
+                    errorMessage[0] = inLexeme[0].line() + ":" + (inLexeme[0].column() + i) + ":>>>>> Illegal character " + inLexeme[0].toString().substring(i, i + 1); 
+                    }
                     return false;
                 }
             }
@@ -511,14 +554,18 @@ public class EvanDiglesProject1 {
                     }
                 }
                 if (noError == false) {
-                    errorMessage[0] = "Unacceptable character found " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i); 
+                    if (makeLikeExample == false) {
+                        errorMessage[0] = "Unacceptable character found " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i);
+                    } else if (makeLikeExample == true) {
+                        errorMessage[0] = inLexeme[0].line() + ":" + (inLexeme[0].column() + i) + ":>>>>> Illegal character " + inLexeme[0].toString().substring(i, i + 1); 
+                    }
                     return false;
                 }
             }
         }
 
         
-        // Evrything went fine and it is an ID? Good job! We're done here so return true.
+        // Everything went fine and it is an ID? Good job! We're done here so return true.
         return true;
     }
 
