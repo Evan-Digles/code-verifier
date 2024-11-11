@@ -480,8 +480,8 @@ public class EvanDiglesProject1 {
                 commentCheck = true;
             }
             if (commentCheck == false) { // Alright, so this part and the else statement ensure that if a comment occurs we skip to the next part. This fixes the 'OP' issue.
-                didInterior = true;
-            } else {
+                didInterior = true;      // Solving the 'OP' issue here has 2 after effects. First: If there's nothing but white space after, the end of text omits the continuing white space, which is fine.
+            } else {                     // Second, if there is nothing but a comment, the end of text treats the existence of the comment as a non-omitted white space, which should also be fine.
                 commentCheck = false;
                 didInterior = false;
             }
