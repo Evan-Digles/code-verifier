@@ -283,7 +283,7 @@ public class EvanDiglesProject1 {
             if (this.theLexeme.length() == 1) { // If we just added the first character to the Lexeme, we need to see if we can determine it's kind.
                 // First, check if it's an ID/keyword. If it can be a keyword it'll be caught later by the final check.
                 for(String checkThis : letters) {
-                    if (this.theLexeme.equals(checkThis)) {
+                    if (this.theLexeme.equals(checkThis) || this.theLexeme.equals("_")) {
                         this.updatelexemeKind("ID");
                         return;
                     }
@@ -378,6 +378,7 @@ public class EvanDiglesProject1 {
         boolean didInterior = false;
         boolean needToUpdatePosition = false;
         boolean munchHalt = false;
+        boolean commentCheck = false; // Added to fix the 'OP' comment issue.
         //System.out.println("We got here"); Debug
         while((didWhiteSpace != true && (currentCharacter[0].equals("End-Of-File") == false)) && didError[0] != true && munchHalt != true) { // Until the current lexeme is done, keep going.
 
@@ -476,8 +477,14 @@ public class EvanDiglesProject1 {
             } else {
                 didWhiteSpace = false;
                 nextChar(userFileStream, currentCharacter, currentLine, currentColumn);
+                commentCheck = true;
             }
-            didInterior = true;
+            if (commentCheck == false) { // Alright, so this part and the else statement ensure that if a comment occurs we skip to the next part. This fixes the 'OP' issue.
+                didInterior = true;
+            } else {
+                commentCheck = false;
+                didInterior = false;
+            }
         } 
         
         //So we have our full complete lexeme. Now we need to check if it's lexically correct. Lets hand that off to another helper method.
@@ -561,11 +568,14 @@ public class EvanDiglesProject1 {
             for (int i = 0; i < inLexeme[0].toString().length(); i++) {
                 boolean noError = false;
                 for (String checkThis : accaptableIDCharacters) {
-                    if (inLexeme[0].toString().substring(i, i + 1).equals(checkThis)) {
+                    if (inLexeme[0].toString().substring(i, i + 1).equals(checkThis) && !(inLexeme[0].toString().substring(0, 1).equals("_"))) {
                         noError = true;
                         continue;
                     }
                 }
+                //if (inLexeme[0].toString().substring(0, 0 + 1).equals("_")) { // Checks if the first character of the ID is "_".
+                //    noError = true;
+                //}
                 if (noError == false) {
                     if (makeLikeExample == false) {
                         errorMessage[0] = "Unacceptable character found " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i);
