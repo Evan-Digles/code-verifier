@@ -1,6 +1,5 @@
-// Evan Digles COSC 455 Project 1
+// Evan Digles COSC 455 Project 2
 // Okay.
-// IMPORTANT: HEY, YOU SEE THAT FINAL VARIABLE ON LINE 16? YEAH. READ THE COMMENT ABOUT IT PLEASE.
 
 // Imports.
 import java.util.Scanner;
@@ -9,7 +8,7 @@ import java.io.IOException;
 import java.io.FileInputStream;
 
 // Class starts here.
-public class EvanDiglesProject1 {
+public class EvanDiglesProject2 {
 
 
     // IMPORTANT: If you want the output to look exactly like the given examples, change this to true.
@@ -643,6 +642,26 @@ public class EvanDiglesProject1 {
 
     public static String position(lexeme[] inLexeme) { // Required in the instructions.
         return inLexeme[0].position();
+    }
+
+    // Project 2 methods start here.
+
+    public static boolean procedure(String current) { // We'll be using this to check if something is correct.
+            // Basically, we use 'if csymb is' type thinking, The current symbol according to my code would be inLexeme[0].
+        switch (current) {
+            case "program": {
+
+                break;
+            }
+        }
+
+
+        return false;
+    }
+
+    public static boolean match() { // This checks if something is a keyword specific. 
+
+        return false;
     }
     
 
