@@ -655,6 +655,7 @@ public class EvanDiglesProject2 {
 
     // This section is for each individual case. You'll find the match and assert functions further below.
 
+    // Initial program procedure.
     public static void program(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
 
         if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "program") == false) { // Is the current lexeme "program"?
@@ -675,29 +676,26 @@ public class EvanDiglesProject2 {
             return;
         }
 
-        System.out.println("No issues found.");
+        System.out.println("No issues found."); // Print this if and only if the thing is syntaxically valid.
         return;
     }
 
+    // Body procedure.
     public static void body(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
-
-
-        return;
-    }
-
-    /* // This.... Shouldn't... Exist??? I'll leave it in incase I need it later.
-    public static boolean procedure(String current) { // We'll be using this to check if something is correct.
-            // Basically, we use 'if csymb is' type thinking, The current symbol according to my code would be inLexeme[0].
-        switch (current) {
-            case "program": {
-
-                break;
-            }
+        // "if csymb() is bool or int"
+        if ((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "bool") == true) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "int") == true)) {
+            declarations();
         }
 
+        return;
+    }
 
-        return false;
-    } */
+    public static void declarations() {
+
+        return;
+    }
+
+    // This section includes the match functions and assert functions.
 
     // What match needs to do is basically take the lexeme and check if the value in the lexeme is equal to the string we hand to it.
     public static boolean matchActual(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst, String matchThis) throws IOException { // This checks if something is specifically something
@@ -716,6 +714,7 @@ public class EvanDiglesProject2 {
         return false;
     }
 
+    // Genuinely I mostly only use this for checking for Identifiers and Numbers.
     public static boolean matchKind(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst, String matchThis) throws IOException { // This checks if something is a certain kind.
         
         if (didError[0] == true) {
@@ -732,6 +731,43 @@ public class EvanDiglesProject2 {
         if (inLexeme[0].lexemeKind().equals("NUM") && inLexeme[0].lexemeKind().equals(matchThis)) {
             // Is it a NUM?
             next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+            return true;
+        }
+
+        return false;
+    }
+
+    // Similar to matchActual but doesn't call next() if it's true.
+    public static boolean assertActual(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst, String matchThis) throws IOException { // This checks if something is specifically something, but doesn't move on to the next if it's true.
+
+        if (didError[0] == true) {
+            System.out.println(errorMessage[0]);
+            return false;
+        }
+
+        if (inLexeme[0].toString().equals(matchThis)) { // Does the lexeme's toString match the matchThis?
+            // If it does match, move the lexeme to the next thing we'll be looking at.
+            return true;
+        }
+
+        return false;
+    }
+
+    // Same boat as assertActual. But for kinds.
+    public static boolean assertKind(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst, String matchThis) throws IOException { // This checks if something is a certain kind.
+        
+        if (didError[0] == true) {
+            System.out.println(errorMessage[0]);
+            return false;
+        }
+
+        if (inLexeme[0].lexemeKind().equals("ID") && inLexeme[0].lexemeKind().equals(matchThis)) {
+            // Is it an ID?
+            return true;
+        }
+
+        if (inLexeme[0].lexemeKind().equals("NUM") && inLexeme[0].lexemeKind().equals(matchThis)) {
+            // Is it a NUM?
             return true;
         }
 
