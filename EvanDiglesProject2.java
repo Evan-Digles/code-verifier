@@ -1,5 +1,11 @@
 // Evan Digles COSC 455 Project 2
-// Okay.
+// I'll be leaving a todo list up here.
+// Handling errors termination and returning position of error needs to be done.
+// Creating the rest of the procedures for the grammar needs to be done, but this will be minimally troublesome once I
+// understand how I want to handle error termination.
+// I would like the program to be able to continue to be used even if a file fails. so
+// TODO: Ask the professor about if it's fine for the program to persist even if a file fails its analysis.
+// In other words, does the program need to return something, or is it fine?
 
 // Imports.
 import java.util.Scanner;
@@ -147,7 +153,8 @@ public class EvanDiglesProject2 {
 
             // Initial next() call to get the first lexeme.
             next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, true);
-
+            System.out.println("First lexeme read in");
+            program(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
             // Past here is where we should have different things for our project 2 code.
             /*
             if (makeLikeExample == false) {
@@ -658,6 +665,10 @@ public class EvanDiglesProject2 {
     // Initial program procedure.
     public static void program(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
 
+        // The following chunk of code is effectively:
+        //match("program")
+        //match("ID")
+        //match(":")
         if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "program") == false) { // Is the current lexeme "program"?
             System.out.println("Error! Expected \"program\"");
             return;
@@ -670,7 +681,11 @@ public class EvanDiglesProject2 {
             System.out.println("Error! Expected \":\"");
             return;
         }
-        body(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false); // TODO
+        // Debug: System.out.println("Holy crap we actually got here");
+
+        // Calls the body procedure.
+        body(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+
         if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ".") == false) {
             System.out.println("Error! Expected \".\"");
             return;
@@ -683,14 +698,56 @@ public class EvanDiglesProject2 {
     // Body procedure.
     public static void body(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
         // "if csymb() is bool or int"
-        if ((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "bool") == true) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "int") == true)) {
-            declarations();
+        if ((inLexeme[0].toString().equals("bool") == true) || (inLexeme[0].toString().equals("int") == true)) { // If we don't require it to be an int or bool, do it like this.
+            declarations(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+        }
+
+        statements(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+
+        return;
+    }
+
+    public static void declarations(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+        declaration(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+        while ((inLexeme[0].toString().equals("bool") == true) || (inLexeme[0].toString().equals("int") == true)) {
+            declaration(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
         }
 
         return;
     }
 
-    public static void declarations() {
+    public static void declaration(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+        if ((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "bool") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "int")) == false) {
+            didError[0] = true;
+            System.out.println("Error! bool or int expected!");
+            return;
+        }
+        next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+        if (matchKind(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "ID") == false) { // Is the current lexeme an Identifier?
+            System.out.println("Error! Expected an Identifier");
+            return;
+        }
+
+        while ((inLexeme[0].toString().equals("'") == true)) {
+            next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+            if (matchKind(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "ID") == false) { // Is the current lexeme an Identifier?
+                System.out.println("Error! Expected an Identifier");
+                return;
+            }
+        }
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ";") == false) { // Is the current lexeme an Identifier?
+            System.out.println("Error! Expected a \";\"");
+            return;
+        }
+
+        return;
+    }
+
+    public static void statements(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException{
+        if (inLexeme[0].lexemeKind().equals("ID")) {
+           //assignment(); TODO
+        }
+
 
         return;
     }
@@ -700,7 +757,7 @@ public class EvanDiglesProject2 {
     // What match needs to do is basically take the lexeme and check if the value in the lexeme is equal to the string we hand to it.
     public static boolean matchActual(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst, String matchThis) throws IOException { // This checks if something is specifically something
 
-        if (didError[0] == true) {
+        if (didError[0] == true) { // This is solely for printing errors if the lexical analyzer hit an error.
             System.out.println(errorMessage[0]);
             return false;
         }
