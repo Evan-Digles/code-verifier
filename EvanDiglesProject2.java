@@ -665,6 +665,15 @@ public class EvanDiglesProject2 {
 
     // This section is for each individual case. You'll find the match and assert functions further below.
     // Note: Just Program will not return anything, but we could change that in the future if it needs to be a standalone method.
+    // For the general procedures, use this for returning if they failed:
+    /*
+    if (
+        [Put your procedure here.]
+    ) {
+        return false;
+    } 
+    
+     */
 
 
     // Initial program procedure.
@@ -712,14 +721,14 @@ public class EvanDiglesProject2 {
     public static boolean body(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
         // "if csymb() is bool or int"
         if ((inLexeme[0].toString().equals("bool") == true) || (inLexeme[0].toString().equals("int") == true)) { // If we don't require it to be an int or bool, do it like this.
-            if ( // Just like body...
+            if (
             declarations(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
             ) {
                 return false;
             }
         }
 
-        if ( // Same as body, if it fails return false.
+        if (
         statements(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
         ) {
             return false;
@@ -775,10 +784,151 @@ public class EvanDiglesProject2 {
     }
 
     public static boolean statements(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException{
-        if (inLexeme[0].lexemeKind().equals("ID")) {
-           //assignment(); TODO
+        if (
+            statement(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        
+        while (inLexeme[0].toString().equals(";") == true) {
+            if (
+                statement(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
         }
 
+
+        return true;
+    }
+
+    public static boolean statement(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        // Do this here because why not.
+        if ((assertKind(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "ID") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "if") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "while") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "print")) == false) {
+            didError[0] = true;
+            System.out.printf("Error at position %s with symbol \"%s\", Expected ID, \"if\", \"while\", or \"print\"\n", inLexeme[0].position(), inLexeme[0].toString());
+            return false;
+        }
+        if (inLexeme[0].lexemeKind().equals("ID")) {
+            if (
+                assignment(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+        if (inLexeme[0].toString().equals("if")) {
+            if (
+                conditional(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+        if (inLexeme[0].toString().equals("while")) {
+            if (
+                iterative(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+        if (inLexeme[0].toString().equals("print")) {
+            if (
+                print(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean assignment(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (matchKind(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "ID") == false) {
+            return false;
+        }
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ":=") == false) {
+            return false;
+        }
+        if (
+            expression(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean conditional(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "if") == false) {
+            return false;
+        }
+        if (
+            expression(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "then") == false) {
+            return false;
+        }
+        if (
+            body(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        if ((inLexeme[0].toString().equals("else") == true)) { // If we don't require it to be an int or bool, do it like this.
+            if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "else") == false) {
+                return false;
+            }
+        if (
+            body(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "end") == false) {
+            return false;
+        }
+
+
+
+        return true;
+    }
+
+    public static boolean iterative(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "while") == false) {
+            return false;
+        }
+        if (
+            expression(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "do") == false) {
+            return false;
+        }
+        if (
+            body(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "end") == false) {
+            return false;
+        }
+        
+
+
+        return true;
+    }
+
+    public static boolean print(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        return true;
+    }
+
+    public static boolean expression(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
 
         return true;
     }
