@@ -698,14 +698,14 @@ public class EvanDiglesProject2 {
         // Debug: System.out.println("Holy crap we actually got here");
 
         // Calls the body procedure. If it returns false then something went wrong and we stop it there.
-        /*
+        // /*
         if ( // Slightly different format here to make sure I see and change all the procedures.
         body(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
         ) {
             return; // If program is to be standalone make it return bool and change this and the other error returns to return false.
         }
-        */
-        next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+        // */
+        //next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
 
         if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ".") == false) {
             //System.out.println("Error! Expected \".\"");
@@ -757,8 +757,8 @@ public class EvanDiglesProject2 {
     }
 
     public static boolean declaration(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
-        if ((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "bool") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "int")) == false) {
-            didError[0] = true;
+        if (((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "bool") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "int"))) == false) {
+            //didError[0] = true;
             System.out.printf("Error at position %s with symbol \"%s\", Expected bool or int\n", inLexeme[0].position(), inLexeme[0].toString());
             return false;
         }
@@ -806,10 +806,11 @@ public class EvanDiglesProject2 {
 
         // Do this here because why not.
         if ((assertKind(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "ID") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "if") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "while") || assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "print")) == false) {
-            didError[0] = true;
+            //didError[0] = true;
             System.out.printf("Error at position %s with symbol \"%s\", Expected ID, \"if\", \"while\", or \"print\"\n", inLexeme[0].position(), inLexeme[0].toString());
             return false;
         }
+        // We don't have a next() here because if we did then it wouldn't function for the parts below here.
         if (inLexeme[0].lexemeKind().equals("ID")) {
             if (
                 assignment(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
@@ -925,10 +926,165 @@ public class EvanDiglesProject2 {
 
     public static boolean print(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
 
+        if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "print") == false) {
+            return false;
+        }
+        if (
+            expression(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+
         return true;
     }
 
     public static boolean expression(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (
+            simpleExpression(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        if ((inLexeme[0].toString().equals("<") == true) || (inLexeme[0].toString().equals("=<") == true) || (inLexeme[0].toString().equals("=") == true) || (inLexeme[0].toString().equals("!=") == true) || (inLexeme[0].toString().equals(">=") == true) || (inLexeme[0].toString().equals(">") == true)) { // If we don't require it to be an int or bool, do it like this.
+            if (
+            relationalOperator(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+            if (
+            simpleExpression(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean simpleExpression(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (
+            term(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        while ((inLexeme[0].toString().equals("+") == true) || (inLexeme[0].toString().equals("-") == true) || (inLexeme[0].toString().equals("or") == true)) {
+            if (
+                additiveOperator(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+            if (
+                term(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean relationalOperator(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "<")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "=<")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "=")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "!=")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, ">=")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, ">"))) == false) {
+            System.out.printf("Error at position %s with symbol \"%s\", Expected <, =<, =, !=, >=, or >\n", inLexeme[0].position(), inLexeme[0].toString());
+            return false;
+        }
+        next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+
+        return true;
+    }
+    
+    public static boolean additiveOperator(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "+")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "-")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "or"))) == false) {
+            System.out.printf("Error at position %s with symbol \"%s\", Expected +, -, or \"or\"\n", inLexeme[0].position(), inLexeme[0].toString());
+            return false;
+        }
+        next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+
+
+        return true;
+    }
+
+    public static boolean term(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (
+            factor(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+        ) {
+            return false;
+        }
+        while ((inLexeme[0].toString().equals("*") == true) || (inLexeme[0].toString().equals("/") == true) || (inLexeme[0].toString().equals("mod") == true) || (inLexeme[0].toString().equals("and") == true)) {
+            if (
+                multiplicativeOperator(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+            if (
+                factor(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+
+
+        return true;
+    }
+
+    public static boolean factor(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if ((inLexeme[0].toString().equals("-") == true) || (inLexeme[0].toString().equals("not") == true)) { // If we don't require it to be an int or bool, do it like this.
+            if (
+            unaryOperator(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+        }
+        if (((inLexeme[0].lexemeKind().equals("NUM")) || (inLexeme[0].toString().equals("false")) || (inLexeme[0].toString().equals("true")) || (inLexeme[0].lexemeKind().equals("ID"))) == false) {
+            //didError[0] = true;
+            System.out.printf("Error at position %s with symbol \"%s\", Expected Literal, ID, or \"(\" followed by Expression followed by a \")\"\n", inLexeme[0].position(), inLexeme[0].toString());
+            return false;
+        } else if ((inLexeme[0].toString().equals("("))) {
+            if (((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "("))) == false) {
+                System.out.printf("Error at position %s with symbol \"%s\", Expected +, -, or \"or\"\n", inLexeme[0].position(), inLexeme[0].toString());
+                return false;
+            }
+            next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+            if (
+            expression(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
+            ) {
+                return false;
+            }
+            if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ")") == false) {
+                return false;
+            }
+        }
+        next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+        
+
+
+        return true;
+    }
+
+    public static boolean multiplicativeOperator(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "*")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "/")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "mod")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "and"))) == false) {
+            System.out.printf("Error at position %s with symbol \"%s\", Expected *, /, \"mod\" or \"and\"\n", inLexeme[0].position(), inLexeme[0].toString());
+            return false;
+        }
+        next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+
+        return true;
+    }
+
+    public static boolean unaryOperator(lexeme[] inLexeme, FileInputStream userFileStream, String currentCharacter[], int currentLine[], int currentColumn[], char acceptableCharacters[], boolean didError[], String errorMessage[], String[] keyWords, String[] symbolTable, String[] acceptableIDCharacters, String[] numbers, String[] letters, boolean[] commenting, boolean[] lexDone, boolean isFirst) throws IOException {
+
+        if (((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "-")) || (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "not"))) == false) {
+            System.out.printf("Error at position %s with symbol \"%s\", Expected -, or \"not\"\n", inLexeme[0].position(), inLexeme[0].toString());
+            return false;
+        }
+        next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+
 
         return true;
     }
