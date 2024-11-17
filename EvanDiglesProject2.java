@@ -132,7 +132,7 @@ public class EvanDiglesProject2 {
 
             
             if (makeLikeExample == false) {
-                System.out.println("Enter File Name, or type 'quit' or 'exit' to exit the program.");
+                System.out.println("Enter File Name to use the Syntax Analyzer on, or type 'quit' or 'exit' to exit the program.");
             } else if (makeLikeExample == true) {
                 System.out.println("Please enter a file to analyze (or quit):");
             }
@@ -716,7 +716,7 @@ public class EvanDiglesProject2 {
             return;
         }
 
-        System.out.println("No issues found."); // Print this if and only if the thing is syntaxically valid.
+        System.out.println("No issues found. File is Syntactically Correct."); // Print this if and only if the thing is syntaxically valid.
         return; // If to be standalone change this to return true.
     }
 
