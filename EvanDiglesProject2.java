@@ -709,7 +709,7 @@ public class EvanDiglesProject2 {
         }
         // */
         //next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
-        System.out.println("Got here");
+        //System.out.println("Got here");
 
         if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ".") == false) {
             //System.out.println("Error! Expected \".\"");
