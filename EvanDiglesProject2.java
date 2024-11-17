@@ -1067,6 +1067,7 @@ public class EvanDiglesProject2 {
                 return false;
             }
             if (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ")") == false) {
+                System.out.printf("Error at position %s with symbol \"%s\", Expected Literal, ID, or \"(\" followed by Expression followed by a \")\"\n", inLexeme[0].position(), inLexeme[0].toString());
                 return false;
             }
         }
