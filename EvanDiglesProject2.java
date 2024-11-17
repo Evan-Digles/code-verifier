@@ -631,7 +631,10 @@ public class EvanDiglesProject2 {
                         if (inLexeme[0].toString().length() >= 2) { // Is the symbol longer than 2? Munch it!
                             return true;
                         }
-                        if (inLexeme[0].toString().equals(currentCharacter[0]) && (currentCharacter[0].equals("/") == false)) { // Repeating symbol? Munch it!... Unless it's a comment.
+                        if (inLexeme[0].toString().equals(currentCharacter[0]) && (currentCharacter[0].equals("/") == false)) { // Repeating symbol? Munch it!... Unless it's a comment or parentheses.
+                            return true;
+                        }
+                        if (inLexeme[0].toString().equals("(") || inLexeme[0].toString().equals(")")) { // Need to much parentheses.
                             return true;
                         }
                         return false;
