@@ -594,7 +594,7 @@ public class EvanDiglesProject2 {
                 //}
                 if (noError == false) {
                     if (makeLikeExample == false) {
-                        errorMessage[0] = "Unacceptable character found " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i);
+                        errorMessage[0] = "Unacceptable character for and ID found " + inLexeme[0].toString().substring(i, i + 1) + " at postition: " + inLexeme[0].line() + ":" + (inLexeme[0].column() + i);
                     } else if (makeLikeExample == true) {
                         errorMessage[0] = inLexeme[0].line() + ":" + (inLexeme[0].column() + i) + ":>>>>> Illegal character " + inLexeme[0].toString().substring(i, i + 1); 
                     }
@@ -706,6 +706,7 @@ public class EvanDiglesProject2 {
         }
         // */
         //next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
+        System.out.println("Got here");
 
         if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ".") == false) {
             //System.out.println("Error! Expected \".\"");
@@ -768,7 +769,11 @@ public class EvanDiglesProject2 {
             return false;
         }
 
-        while ((inLexeme[0].toString().equals("'") == true)) {
+        while ((inLexeme[0].toString().equals(",") == true)) {
+            if (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ",") == false) {
+                System.out.printf("Error at position %s with symbol \"%s\", Expected \",\"\n", inLexeme[0].position(), inLexeme[0].toString());
+                return false;
+            }
             next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
             if (matchKind(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, "ID") == false) { // Is the current lexeme an Identifier?
                 //System.out.println("Error! Expected an Identifier");
@@ -791,6 +796,11 @@ public class EvanDiglesProject2 {
         }
         
         while (inLexeme[0].toString().equals(";") == true) {
+            if (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ";") == false) {
+                System.out.printf("Error at position %s with symbol \"%s\", Expected \";\"\n", inLexeme[0].position(), inLexeme[0].toString());
+                return false;
+            }
+            next(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false);
             if (
                 statement(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false) == false
             ) {
@@ -1040,11 +1050,12 @@ public class EvanDiglesProject2 {
                 return false;
             }
         }
-        if (((inLexeme[0].lexemeKind().equals("NUM")) || (inLexeme[0].toString().equals("false")) || (inLexeme[0].toString().equals("true")) || (inLexeme[0].lexemeKind().equals("ID"))) == false) {
+        if (((inLexeme[0].lexemeKind().equals("NUM")) || (inLexeme[0].toString().equals("false")) || (inLexeme[0].toString().equals("true")) || (inLexeme[0].lexemeKind().equals("ID")) || (inLexeme[0].toString().equals("("))) == false) {
             //didError[0] = true;
             System.out.printf("Error at position %s with symbol \"%s\", Expected Literal, ID, or \"(\" followed by Expression followed by a \")\"\n", inLexeme[0].position(), inLexeme[0].toString());
             return false;
-        } else if ((inLexeme[0].toString().equals("("))) {
+        } 
+        if ((inLexeme[0].toString().equals("("))) {
             if (((assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, isFirst, "("))) == false) {
                 System.out.printf("Error at position %s with symbol \"%s\", Expected +, -, or \"or\"\n", inLexeme[0].position(), inLexeme[0].toString());
                 return false;
@@ -1055,7 +1066,7 @@ public class EvanDiglesProject2 {
             ) {
                 return false;
             }
-            if (matchActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ")") == false) {
+            if (assertActual(inLexeme, userFileStream, currentCharacter, currentLine, currentColumn, acceptableCharacters, didError, errorMessage, keyWords, symbolTable, acceptableIDCharacters, numbers, letters, commenting, lexDone, false, ")") == false) {
                 return false;
             }
         }
