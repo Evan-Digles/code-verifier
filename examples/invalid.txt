@@ -1,0 +1,6 @@
+// The assignment on line 4 uses "=" where ":=" is required.
+program Broken:
+   int total;
+   total = 0;
+   print total
+.
