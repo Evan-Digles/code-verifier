@@ -79,3 +79,8 @@ Error at position 4:10 with symbol "=", Expected ":="
   scanner work through the finished parser.
 - The two files in `examples/` were written for this README. The course's
   own test files are not included.
+
+## About this README
+
+This README was rewritten with Claude for the portfolio copy of the
+project. The code and its comments are as submitted for the course.
